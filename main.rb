@@ -32,5 +32,22 @@ end
 puzzle = puzzle[1..-1]
 
 print_puzzle(puzzle)
-close_numbers(puzzle)
+while trick_loop(puzzle)
+  print_puzzle(puzzle)
+end
 print_puzzle(puzzle)
+
+puzzle.each_index do |y|
+  puzzle[y].each_index do |x|
+    cluster_status = get_cluster_status(puzzle, x, y)
+    if !cluster_status.nil? && cluster_status["type"] == "."
+      o = cluster_status["origin"]
+      print puzzle[o[1]][o[0]]
+    else
+      print puzzle[y][x]
+    end
+    print " "
+  end
+  puts
+end
+
