@@ -3,6 +3,7 @@
 require "pp"
 require_relative "tricks.rb"
 require_relative "utils.rb"
+require_relative "route.rb"
 
 puzzle_raw = %{
 ,,,,,
@@ -37,17 +38,7 @@ while trick_loop(puzzle)
 end
 print_puzzle(puzzle)
 
-puzzle.each_index do |y|
-  puzzle[y].each_index do |x|
-    cluster_status = get_cluster_status(puzzle, x, y)
-    if !cluster_status.nil? && cluster_status["type"] == "."
-      o = cluster_status["origin"]
-      print puzzle[o[1]][o[0]]
-    else
-      print puzzle[y][x]
-    end
-    print " "
-  end
-  puts
-end
+puts
+route = route(puzzle, 0, 4, 2, 7)
+print_puzzle(puzzle, route)
 

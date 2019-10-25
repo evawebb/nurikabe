@@ -32,11 +32,16 @@ end
 def close_islands(puzzle)
   scan_puzzle(puzzle) do |x, y|
     primary_cluster_status = get_cluster_status(puzzle, x, y)
-    if !primary_cluster_status.nil? && primary_cluster_status["type"] == "."
+    if (
+      !primary_cluster_status.nil? && 
+      !primary_cluster_status["origin"].nil? && 
+      primary_cluster_status["type"] == "."
+    )
       neighbors(puzzle, x, y, dist = 2) do |nx, ny|
         secondary_cluster_status = get_cluster_status(puzzle, nx, ny)
         if (
           !secondary_cluster_status.nil? &&
+          !secondary_cluster_status["origin"].nil? &&
           secondary_cluster_status["type"] == "." &&
           secondary_cluster_status["origin"] != primary_cluster_status["origin"]
         )
@@ -55,22 +60,20 @@ def close_islands(puzzle)
 end
 
 def obvious_islands(puzzle)
-  scan_puzzle(puzzle) do |x, y|
-    if is_number(puzzle, x, y)
-      if puzzle[y][x] == 1
-        neighbors(puzzle, x, y) do |nx, ny|
-          puzzle[ny][nx] = "#"
+  each_number(puzzle) do |x, y|
+    if puzzle[y][x] == 1
+      neighbors(puzzle, x, y) do |nx, ny|
+        puzzle[ny][nx] = "#"
+      end
+    else
+      cluster_status = get_cluster_status(puzzle, x, y)
+      if cluster_status["."].size == puzzle[y][x] && cluster_status["_"].size > 0
+        cluster_status["_"].each do |pt|
+          puzzle[pt[1]][pt[0]] = "#"
         end
-      else
-        cluster_status = get_cluster_status(puzzle, x, y)
-        if cluster_status["."].size == puzzle[y][x] && cluster_status["_"].size > 0
-          cluster_status["_"].each do |pt|
-            puzzle[pt[1]][pt[0]] = "#"
-          end
-        elsif cluster_status["_"].size == 1
-          free_cell = cluster_status["_"][0]
-          puzzle[free_cell[1]][free_cell[0]] = "."
-        end
+      elsif cluster_status["_"].size == 1
+        free_cell = cluster_status["_"][0]
+        puzzle[free_cell[1]][free_cell[0]] = "."
       end
     end
   end
@@ -96,19 +99,27 @@ def escaping_water(puzzle)
 end
 
 def cornered_island(puzzle)
-  scan_puzzle(puzzle) do |x, y|
-    if is_number(puzzle, x, y)
-      cluster_status = get_cluster_status(puzzle, x, y)
-      if cluster_status["."].size + 1 == puzzle[y][x] && cluster_status["_"].size == 2
-        free_cells = cluster_status["_"]
-        if (free_cells[0][0] - free_cells[1][0]).abs == 1 && (free_cells[0][1] - free_cells[1][1]).abs == 1
-          if puzzle[free_cells[0][1]][free_cells[1][0]] == "_"
-            puzzle[free_cells[0][1]][free_cells[1][0]] = "#"
-          elsif puzzle[free_cells[1][1]][free_cells[0][0]] == "_"
-            puzzle[free_cells[1][1]][free_cells[0][0]] = "#"
-          end
+  each_number(puzzle) do |x, y|
+    cluster_status = get_cluster_status(puzzle, x, y)
+    if cluster_status["."].size + 1 == puzzle[y][x] && cluster_status["_"].size == 2
+      free_cells = cluster_status["_"]
+      if (free_cells[0][0] - free_cells[1][0]).abs == 1 && (free_cells[0][1] - free_cells[1][1]).abs == 1
+        if puzzle[free_cells[0][1]][free_cells[1][0]] == "_"
+          puzzle[free_cells[0][1]][free_cells[1][0]] = "#"
+        elsif puzzle[free_cells[1][1]][free_cells[0][0]] == "_"
+          puzzle[free_cells[1][1]][free_cells[0][0]] = "#"
         end
       end
     end
+  end
+end
+
+def restricted_spaces(puzzle)
+  each_number(puzzle) do |x, y|
+    possible_free_cells = get_routable_free_cells(
+      puzzle,
+      x, y,
+      dist = puzzle[y][x]
+    )
   end
 end

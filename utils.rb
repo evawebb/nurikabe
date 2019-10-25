@@ -1,22 +1,64 @@
-def print_puzzle(puzzle)
-  print "+-"
-  puzzle[0].size.times { print "---" }
-  print "-+"
-  puts
+require_relative "route.rb"
 
-  puzzle.each do |row|
-    print "| "
-    row.each do |c|
-      print sprintf("%2s ", c.to_s)
+def get_print_top(puzzle)
+  out = ""
+
+  out << "   "
+  out << "  "
+  puzzle[0].size.times do |i|
+    out << sprintf("%2d ", i)
+  end
+  out << "\n"
+
+  out << "   "
+  out << "+-"
+  puzzle[0].size.times { out << "---" }
+  out << "-+"
+  out << "\n"
+
+  out
+end
+
+def get_print_row(puzzle, y, route = nil)
+  out = ""
+
+  out << sprintf("%2d ", y)
+  out << "| "
+
+  puzzle[y].each_index do |x|
+    if !route.nil? && route.include?([x, y])
+      out << " * "
+    else
+      c = puzzle[y][x]
+      out << sprintf("%2s ", c.to_s)
     end
-    print " |"
-    puts
+  end
+  out << " |"
+  out << "\n"
+
+  out
+end
+
+def get_print_bottom(puzzle)
+  out = ""
+
+  out << "   "
+  out << "+-"
+  puzzle[0].size.times { out << "---" }
+  out << "-+"
+  out << "\n"
+
+  out
+end
+
+def print_puzzle(puzzle, route = nil)
+  print get_print_top(puzzle)
+
+  puzzle.each_index do |y|
+    print get_print_row(puzzle, y, route)
   end
 
-  print "+-"
-  puzzle[0].size.times { print "---" }
-  print "-+"
-  puts
+  print get_print_bottom(puzzle)
 end
 
 def get_deltas(dist, diag)
@@ -84,6 +126,14 @@ def scan_puzzle(puzzle)
   end
 end
 
+def each_number(puzzle)
+  scan_puzzle(puzzle) do |x, y|
+    if is_number(puzzle, x, y)
+      yield(x, y)
+    end
+  end
+end
+
 def get_cluster_status(puzzle, x, y)
   if puzzle[y][x] == "_"
     return nil
@@ -145,4 +195,7 @@ def get_cluster_status(puzzle, x, y)
 
     out
   end
+end
+
+def get_routable_free_cells(puzzle, x, y, dist = 99)
 end
