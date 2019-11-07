@@ -1,5 +1,4 @@
 require "pp"
-require_relative "route.rb"
 
 def get_print_top(puzzle)
   out = ""
@@ -195,14 +194,5 @@ def get_cluster_status(puzzle, x, y)
     end
 
     out
-  end
-end
-
-def get_routable_free_cells(puzzle, x, y, dist = 99)
-  scan_puzzle(puzzle) do |nx, ny|
-    if puzzle[:grid][ny][nx] == "_"
-      puts "#{x}, #{y} -> #{nx}, #{ny}"
-      pp(route(puzzle, x, y, nx, ny))
-    end
   end
 end

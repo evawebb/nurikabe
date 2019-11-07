@@ -40,8 +40,8 @@ while trick_loop(puzzle)
 end
 print_puzzle(puzzle)
 
-# get_routable_free_cells(puzzle, 2, 0, 5)
+# get_routable_free_cells(puzzle, 2, 1, 5)
 print_puzzle(
   puzzle,
-  route(puzzle, 0, 4, 2, 7)
+  route(puzzle, 2, 1, 0, 1)
 )

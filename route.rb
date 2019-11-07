@@ -1,3 +1,5 @@
+require_relative "utils.rb"
+
 def h(point, goal)
   (
     (point[0] - goal[0]).abs +
@@ -32,7 +34,55 @@ def routable_neighbors(puzzle, x, y)
   out
 end
 
+def alter_puzzle(puzzle, start_cluster_status)
+  altered_puzzle = { :grid => [] }
+  puzzle[:grid].each_index do |y|
+    row = []
+    puzzle[:grid][y].each_index do |x|
+      if (
+        (
+          is_number(puzzle, x, y) || 
+          puzzle[:grid][y][x] == "."
+        ) &&
+        start_cluster_status["."].include?([x, y])
+      )
+        row << "_"
+      else
+        island_neighbor = false
+        neighbors(puzzle, x, y) do |nx, ny|
+          if (
+            (
+              is_number(puzzle, nx, ny) ||
+              puzzle[:grid][ny][nx] == "."
+            ) &&
+            !start_cluster_status["."].include?([nx, ny])
+          )
+            island_neighbor = true
+            break
+          end
+        end
+
+        if island_neighbor
+          row << "#"
+        else
+          row << puzzle[:grid][y][x]
+        end
+      end
+    end
+    altered_puzzle[:grid] << row
+  end
+
+  altered_puzzle
+end
+
 def route(puzzle, x1, y1, x2, y2)
+  start_cluster_status = get_cluster_status(puzzle, x1, y1)
+  altered_puzzle = if start_cluster_status["type"] == "."
+    alter_puzzle(puzzle, start_cluster_status)
+  else
+    puzzle
+  end
+
   start = [x1, y1]
   goal = [x2, y2]
 
@@ -45,7 +95,7 @@ def route(puzzle, x1, y1, x2, y2)
   while !frontier.empty?
     next_point = frontier.pop
 
-    routable_neighbors(puzzle, next_point[0], next_point[1]).each do |neighbor|
+    routable_neighbors(altered_puzzle, next_point[0], next_point[1]).each do |neighbor|
       g_score = gs[next_point] + 1
       if gs.has_key?(neighbor)
         if gs[neighbor] > g_score
