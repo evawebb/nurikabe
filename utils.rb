@@ -1,3 +1,4 @@
+require "pp"
 require_relative "route.rb"
 
 def get_print_top(puzzle)
@@ -5,14 +6,14 @@ def get_print_top(puzzle)
 
   out << "   "
   out << "  "
-  puzzle[0].size.times do |i|
+  puzzle[:grid][0].size.times do |i|
     out << sprintf("%2d ", i)
   end
   out << "\n"
 
   out << "   "
   out << "+-"
-  puzzle[0].size.times { out << "---" }
+  puzzle[:grid][0].size.times { out << "---" }
   out << "-+"
   out << "\n"
 
@@ -25,11 +26,11 @@ def get_print_row(puzzle, y, route = nil)
   out << sprintf("%2d ", y)
   out << "| "
 
-  puzzle[y].each_index do |x|
+  puzzle[:grid][y].each_index do |x|
     if !route.nil? && route.include?([x, y])
       out << " * "
     else
-      c = puzzle[y][x]
+      c = puzzle[:grid][y][x]
       out << sprintf("%2s ", c.to_s)
     end
   end
@@ -44,7 +45,7 @@ def get_print_bottom(puzzle)
 
   out << "   "
   out << "+-"
-  puzzle[0].size.times { out << "---" }
+  puzzle[:grid][0].size.times { out << "---" }
   out << "-+"
   out << "\n"
 
@@ -54,7 +55,7 @@ end
 def print_puzzle(puzzle, route = nil)
   print get_print_top(puzzle)
 
-  puzzle.each_index do |y|
+  puzzle[:grid].each_index do |y|
     print get_print_row(puzzle, y, route)
   end
 
@@ -104,8 +105,8 @@ def neighbors(puzzle, x, y, dist = 1, diag = false)
     if (
       ny >= 0 &&
       nx >= 0 &&
-      ny < puzzle.size &&
-      nx < puzzle[ny].size
+      ny < puzzle[:grid].size &&
+      nx < puzzle[:grid][ny].size
     )
       yield(nx, ny)
     end
@@ -113,14 +114,14 @@ def neighbors(puzzle, x, y, dist = 1, diag = false)
 end
 
 def is_number(puzzle, x, y)
-  puzzle[y][x] != "_" &&
-  puzzle[y][x] != "#" &&
-  puzzle[y][x] != "."
+  puzzle[:grid][y][x] != "_" &&
+  puzzle[:grid][y][x] != "#" &&
+  puzzle[:grid][y][x] != "."
 end
 
 def scan_puzzle(puzzle)
-  puzzle.each_index do |y|
-    puzzle[y].each_index do |x|
+  puzzle[:grid].each_index do |y|
+    puzzle[:grid][y].each_index do |x|
       yield(x, y)
     end
   end
@@ -135,12 +136,12 @@ def each_number(puzzle)
 end
 
 def get_cluster_status(puzzle, x, y)
-  if puzzle[y][x] == "_"
+  if puzzle[:grid][y][x] == "_"
     return nil
   else
     type = "."
     border = "#"
-    if puzzle[y][x] == "#"
+    if puzzle[:grid][y][x] == "#"
       type = "#"
       border = "."
     end
@@ -167,12 +168,12 @@ def get_cluster_status(puzzle, x, y)
       out[type].each do |pt|
         neighbors(puzzle, pt[0], pt[1]) do |nx, ny|
           is_type = (
-            (type == "." && (is_number(puzzle, nx, ny) || puzzle[ny][nx] == ".")) ||
-            (type == "#" && puzzle[ny][nx] == "#")
+            (type == "." && (is_number(puzzle, nx, ny) || puzzle[:grid][ny][nx] == ".")) ||
+            (type == "#" && puzzle[:grid][ny][nx] == "#")
           )
           is_border = (
-            (border == "." && (is_number(puzzle, nx, ny) || puzzle[ny][nx] == ".")) ||
-            (border == "#" && puzzle[ny][nx] == "#")
+            (border == "." && (is_number(puzzle, nx, ny) || puzzle[:grid][ny][nx] == ".")) ||
+            (border == "#" && puzzle[:grid][ny][nx] == "#")
           )
 
           if is_type && !out[type].include?([nx, ny])
@@ -185,7 +186,7 @@ def get_cluster_status(puzzle, x, y)
           elsif is_border && !out[border].include?([nx, ny])
             out[border] << [nx, ny]
             new_data_size += 1
-          elsif puzzle[ny][nx] == "_" && !out["_"].include?([nx, ny])
+          elsif puzzle[:grid][ny][nx] == "_" && !out["_"].include?([nx, ny])
             out["_"] << [nx, ny]
             new_data_size += 1
           end
@@ -198,4 +199,10 @@ def get_cluster_status(puzzle, x, y)
 end
 
 def get_routable_free_cells(puzzle, x, y, dist = 99)
+  scan_puzzle(puzzle) do |nx, ny|
+    if puzzle[:grid][ny][nx] == "_"
+      puts "#{x}, #{y} -> #{nx}, #{ny}"
+      pp(route(puzzle, x, y, nx, ny))
+    end
+  end
 end

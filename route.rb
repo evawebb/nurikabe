@@ -21,9 +21,9 @@ def routable_neighbors(puzzle, x, y)
     if (
       ny >= 0 &&
       nx >= 0 &&
-      ny < puzzle.size &&
-      nx < puzzle[ny].size &&
-      puzzle[ny][nx] == "_"
+      ny < puzzle[:grid].size &&
+      nx < puzzle[:grid][ny].size &&
+      puzzle[:grid][ny][nx] == "_"
     )
       out << [nx, ny]
     end
@@ -63,14 +63,6 @@ def route(puzzle, x1, y1, x2, y2)
     frontier.sort! do |a, b|
       gs[a] + hs[a] <=> gs[b] + gs[b]
     end
-
-    # puts next_point.inspect
-    # puts routable_neighbors(puzzle, next_point[0], next_point[1]).inspect
-    # puts frontier.inspect
-    # puts gs.inspect
-    # puts hs.inspect
-    # puts backtrace.inspect
-    # puts
 
     if next_point == goal
       route = [goal]

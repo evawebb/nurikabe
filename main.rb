@@ -16,7 +16,9 @@ puzzle_raw = %{
 ,,,,,
 }
 
-puzzle = []
+puzzle = {
+  :grid => []
+}
 puzzle_raw.each_line do |l|
   row = l.split(",").map { |s| s.strip }
   row = row.map do |s|
@@ -28,9 +30,9 @@ puzzle_raw.each_line do |l|
       s
     end
   end
-  puzzle << row
+  puzzle[:grid] << row
 end
-puzzle = puzzle[1..-1]
+puzzle[:grid] = puzzle[:grid][1..-1]
 
 print_puzzle(puzzle)
 while trick_loop(puzzle)
@@ -38,7 +40,8 @@ while trick_loop(puzzle)
 end
 print_puzzle(puzzle)
 
-puts
-route = route(puzzle, 0, 4, 2, 7)
-print_puzzle(puzzle, route)
-
+# get_routable_free_cells(puzzle, 2, 0, 5)
+print_puzzle(
+  puzzle,
+  route(puzzle, 0, 4, 2, 7)
+)
