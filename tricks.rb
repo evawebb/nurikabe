@@ -126,6 +126,9 @@ def restricted_spaces(puzzle)
         end
       end
 
+      # TODO: disabling this <5 check breaks everything, 
+      # I think because the different islands' free cells
+      # overlap and they don't account for that
       if possible_free_cells.size > 0 && possible_free_cells.size < 5
         cells_left = puzzle[:grid][y][x] - cluster_status["."].size
         patches = all_possible_patches(possible_free_cells, cells_left)

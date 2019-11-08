@@ -34,9 +34,11 @@ puzzle_raw.each_line do |l|
 end
 puzzle[:grid] = puzzle[:grid][1..-1]
 
+old_puzzle = clone_puzzle(puzzle)
 print_puzzle(puzzle)
 while trick_loop(puzzle)
-  print_puzzle(puzzle)
+  print_puzzle(puzzle, nil, old_puzzle)
+old_puzzle = clone_puzzle(puzzle)
 end
-print_puzzle(puzzle)
+print_puzzle(puzzle, nil, old_puzzle)
 
