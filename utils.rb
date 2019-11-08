@@ -214,3 +214,39 @@ def clone_puzzle(puzzle, alterations = {})
   
   cloned
 end
+
+def valid?(puzzle)
+  valid = true
+
+  # Check for any isolated lakes
+  total_water = 0
+  scan_puzzle(puzzle) do |x, y|
+    if puzzle[:grid][y][x] == "#"
+      total_water += 1
+    end
+  end
+  scan_puzzle(puzzle) do |x, y|
+    cluster_status = get_cluster_status(puzzle, x, y)
+    if (
+      !cluster_status.nil? &&
+      cluster_status["type"] == "#" && 
+      cluster_status["_"].empty? &&
+      cluster_status["#"].size < total_water
+    )
+      valid = false
+    end
+  end
+
+  # Check for correctly-sized islands
+  each_number(puzzle) do |x, y|
+    cluster_status = get_cluster_status(puzzle, x, y)
+    if (
+      cluster_status["."].size > puzzle[:grid][y][x] ||
+      (cluster_status["_"].empty? && cluster_status["."].size != puzzle[:grid][y][x])
+    )
+      valid = false
+    end
+  end
+
+  valid
+end

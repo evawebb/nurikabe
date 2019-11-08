@@ -41,14 +41,3 @@ end
 print_puzzle(puzzle)
 
 # restricted_spaces(puzzle)
-
-pp(clone_puzzle(puzzle))
-pp(clone_puzzle(
-  puzzle,
-  {
-    [0, 0] => ".",
-    [1, 0] => ".",
-    [3, 0] => ".",
-  }
-))
-
