@@ -34,6 +34,7 @@ def routable_neighbors(puzzle, x, y)
   out
 end
 
+# TODO: rewrite with the clone_puzzle function
 def alter_puzzle(puzzle, start_cluster_status)
   altered_puzzle = { :grid => [] }
   puzzle[:grid].each_index do |y|

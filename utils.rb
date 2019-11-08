@@ -196,3 +196,21 @@ def get_cluster_status(puzzle, x, y)
     out
   end
 end
+
+def clone_puzzle(puzzle, alterations = {})
+  cloned = { :grid => [] }
+
+  puzzle[:grid].each do |row|
+    r = []
+    row.each do |cell|
+      r << cell
+    end
+    cloned[:grid] << r
+  end
+
+  alterations.each do |coord, value|
+    cloned[:grid][coord[1]][coord[0]] = value
+  end
+  
+  cloned
+end

@@ -40,8 +40,15 @@ while trick_loop(puzzle)
 end
 print_puzzle(puzzle)
 
-# get_routable_free_cells(puzzle, 2, 1, 5)
-print_puzzle(
+# restricted_spaces(puzzle)
+
+pp(clone_puzzle(puzzle))
+pp(clone_puzzle(
   puzzle,
-  route(puzzle, 2, 1, 0, 1)
-)
+  {
+    [0, 0] => ".",
+    [1, 0] => ".",
+    [3, 0] => ".",
+  }
+))
+

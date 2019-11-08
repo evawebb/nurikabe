@@ -114,21 +114,17 @@ def cornered_island(puzzle)
   end
 end
 
-def get_routable_free_cells(puzzle, x, y, dist = 99)
-  scan_puzzle(puzzle) do |nx, ny|
-    if puzzle[:grid][ny][nx] == "_"
-      puts "#{x}, #{y} -> #{nx}, #{ny}"
-      pp(route(puzzle, x, y, nx, ny))
-    end
-  end
-end
-
 def restricted_spaces(puzzle)
   each_number(puzzle) do |x, y|
-    possible_free_cells = get_routable_free_cells(
-      puzzle,
-      x, y,
-      dist = puzzle[:grid][y][x]
-    )
+    possible_free_cells = []
+    scan_puzzle(puzzle) do |nx, ny|
+      if puzzle[:grid][ny][nx] == "_" && !route(puzzle, x, y, nx, ny).nil?
+        possible_free_cells << [nx, ny]
+      end
+    end
+
+    if possible_free_cells.size > 0
+      
+    end
   end
 end
