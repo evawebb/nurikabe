@@ -19,7 +19,7 @@ def get_print_top(puzzle)
   out
 end
 
-def get_print_row(puzzle, y, route = nil)
+def get_print_row(puzzle, y, route = nil, diff = nil)
   out = ""
 
   out << sprintf("%2d ", y)
@@ -30,7 +30,16 @@ def get_print_row(puzzle, y, route = nil)
       out << " * "
     else
       c = puzzle[:grid][y][x]
-      out << sprintf("%2s ", c.to_s)
+      if !diff.nil?
+        dc = diff[:grid][y][x]
+        if c != dc
+          out << sprintf("\e[46m%2s\e[0m ", c.to_s)
+        else
+          out << sprintf("%2s ", c.to_s)
+        end
+      else
+        out << sprintf("%2s ", c.to_s)
+      end
     end
   end
   out << " |"
@@ -51,11 +60,11 @@ def get_print_bottom(puzzle)
   out
 end
 
-def print_puzzle(puzzle, route = nil)
+def print_puzzle(puzzle, route = nil, diff = nil)
   print get_print_top(puzzle)
 
   puzzle[:grid].each_index do |y|
-    print get_print_row(puzzle, y, route)
+    print get_print_row(puzzle, y, route, diff)
   end
 
   print get_print_bottom(puzzle)
@@ -248,5 +257,29 @@ def valid?(puzzle)
     end
   end
 
+  # TODO: Check for any 2x2 water squares
+
+  # TODO: Check for any isolated land cells
+
   valid
+end
+
+def all_possible_patches(choices, select_num)
+  indices = (0...choices.size).to_a
+  point_possibilities = indices.combination(select_num).to_a.map do |c|
+    c.map do |i|
+      choices[i]
+    end
+  end
+  point_possibilities.map do |ps|
+    patches = {}
+    choices.each do |p|
+      if ps.include?(p)
+        patches[p] = "."
+      else
+        patches[p] = "#"
+      end
+    end
+    patches
+  end
 end

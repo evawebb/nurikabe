@@ -40,4 +40,3 @@ while trick_loop(puzzle)
 end
 print_puzzle(puzzle)
 
-# restricted_spaces(puzzle)

@@ -15,6 +15,7 @@ def trick_loop(puzzle)
   obvious_islands(puzzle)
   escaping_water(puzzle)
   cornered_island(puzzle)
+  restricted_spaces(puzzle)
 
   total_island_after = 0
   total_water_after = 0
@@ -116,15 +117,46 @@ end
 
 def restricted_spaces(puzzle)
   each_number(puzzle) do |x, y|
-    possible_free_cells = []
-    scan_puzzle(puzzle) do |nx, ny|
-      if puzzle[:grid][ny][nx] == "_" && !route(puzzle, x, y, nx, ny).nil?
-        possible_free_cells << [nx, ny]
+    cluster_status = get_cluster_status(puzzle, x, y)
+    if cluster_status["_"].size > 0 
+      possible_free_cells = []
+      scan_puzzle(puzzle) do |nx, ny|
+        if puzzle[:grid][ny][nx] == "_" && !route(puzzle, x, y, nx, ny).nil?
+          possible_free_cells << [nx, ny]
+        end
       end
-    end
 
-    if possible_free_cells.size > 0
-      
+      if possible_free_cells.size > 0 && possible_free_cells.size < 5
+        cells_left = puzzle[:grid][y][x] - cluster_status["."].size
+        patches = all_possible_patches(possible_free_cells, cells_left)
+
+        maybe_land = {}
+        maybe_water = {}
+        possible_free_cells.each do |p|
+          maybe_land[p] = false
+          maybe_water[p] = false
+        end
+
+        patches.each do |patch|
+          if valid?(clone_puzzle(puzzle, patch))
+            patch.each do |p, type|
+              if type == "."
+                maybe_land[p] = true
+              elsif type == "#"
+                maybe_water[p] = true
+              end
+            end
+          end
+        end
+
+        possible_free_cells.each do |p|
+          if maybe_land[p] && !maybe_water[p]
+            puzzle[:grid][p[1]][p[0]] = "."
+          elsif maybe_water[p] && !maybe_land[p]
+            puzzle[:grid][p[1]][p[0]] = "#"
+          end
+        end
+      end
     end
   end
 end
